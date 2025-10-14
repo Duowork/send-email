@@ -28,18 +28,18 @@ exports.handler = async (event, context) => {
     } = JSON.parse(event.body);
 
     // Validate required fields
-    if (!to || !subject || !message) {
+    if (!email || !subject || !message) {
       return {
         statusCode: 400,
         body: JSON.stringify({
-          error: "Missing required fields: to, subject, message",
+          error: "Missing required fields: email, subject, message",
         }),
       };
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(to)) {
+    if (!emailRegex.test(email)) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: "Invalid email address" }),
@@ -63,7 +63,7 @@ exports.handler = async (event, context) => {
             <p style="color: #666; line-height: 1.6;">${message}</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
             <p style="color: #999; font-size: 12px;">
-              Sent from ${senderName} | ${email}
+              Sender: ${name} | ${email}
             </p>
           </div>
         `,
