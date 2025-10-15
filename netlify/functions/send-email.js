@@ -51,6 +51,9 @@ exports.handler = async (event, context) => {
       headers: {
         Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "https://duowork.tech",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
       body: JSON.stringify({
         from: "noreply@duowork.tech",
