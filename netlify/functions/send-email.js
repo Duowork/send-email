@@ -31,14 +31,12 @@ exports.handler = async (event, context) => {
       "https://www.duowork.tech",
       "http://localhost:4322"
     ];
-    const origin = event.headers.origin;
-    const allowOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
 
     return {
       statusCode: 405,
       body: JSON.stringify({ error: "Method Not Allowed" }),
       headers: {
-      "Access-Control-Allow-Origin": allowOrigin,
+      "Access-Control-Allow-Origin": allowedOrigins,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
       },
