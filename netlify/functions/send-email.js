@@ -25,13 +25,22 @@ exports.handler = async (event, context) => {
 
   // Only allow POST and OPTION requests
   if (event.httpMethod !== "POST" && event.httpMethod !== "OPTIONS") {
+    // Allow multiple origins
+    const allowedOrigins = [
+      "https://duowork.tech",
+      "https://www.duowork.tech",
+      "http://localhost:4322"
+    ];
+    const origin = event.headers.origin;
+    const allowOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+
     return {
       statusCode: 405,
       body: JSON.stringify({ error: "Method Not Allowed" }),
       headers: {
-        "Access-Control-Allow-Origin": "https://duowork.tech",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Origin": allowOrigin,
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
       },
     };
   }
