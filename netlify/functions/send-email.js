@@ -23,8 +23,8 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // Only allow POST requests
-  if (event.httpMethod !== "POST" || event.httpMethod !== "OPTIONS") {
+  // Only allow POST and OPTION requests
+  if (event.httpMethod !== "POST" && event.httpMethod !== "OPTIONS") {
     return {
       statusCode: 405,
       body: JSON.stringify({ error: "Method Not Allowed" }),
