@@ -9,28 +9,42 @@ exports.handler = async (event, context) => {
     };
   }
 
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "https://duowork.tech",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+      body: "",
+    };
+  }
+
   // Only allow POST requests
-  if (event.httpMethod !== "POST") {
+  if (event.httpMethod !== "POST" || event.httpMethod !== "OPTIONS") {
     return {
       statusCode: 405,
       body: JSON.stringify({ error: "Method Not Allowed" }),
+      headers: {
+        "Access-Control-Allow-Origin": "https://duowork.tech",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
     };
   }
 
   try {
     // Parse the request body
-    const {
-      name,
-      email,
-      subject,
-      survey,
-      message,
-    } = JSON.parse(event.body);
+    const { name, email, subject, survey, message } = JSON.parse(event.body);
 
     // Validate required fields
     if (!email || !subject || !message) {
       return {
         statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "https://duowork.tech",
+        },
         body: JSON.stringify({
           error: "Missing required fields: email, subject, message",
         }),
@@ -51,7 +65,7 @@ exports.handler = async (event, context) => {
       headers: {
         Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "https://duowork.tech",
+        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
@@ -91,6 +105,9 @@ exports.handler = async (event, context) => {
     // Return success response
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "https://duowork.tech",
+      },
       body: JSON.stringify({
         success: true,
         message: "Email sent successfully!",
@@ -100,6 +117,9 @@ exports.handler = async (event, context) => {
   } catch (error) {
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "https://duowork.tech",
+      },
       body: JSON.stringify({
         error: "Internal server error",
         message: error.message,
