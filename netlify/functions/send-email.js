@@ -2,6 +2,12 @@ exports.handler = async (event, context) => {
   // Get Resend API key from environment variable
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
+  const headers = {
+    "Access-Control-Allow-Origin": "https://duowork.tech",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Cache-Control",
+  };
+
   if (!RESEND_API_KEY) {
     return {
       statusCode: 500,
@@ -12,11 +18,7 @@ exports.handler = async (event, context) => {
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "https://duowork.tech",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-      },
+      headers: headers,
       body: "",
     };
   }
