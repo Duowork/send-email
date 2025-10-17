@@ -2,10 +2,22 @@ exports.handler = async (event, context) => {
   // Get Resend API key from environment variable
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
-  const headers = {
-    "Access-Control-Allow-Origin": "https://duowork.tech",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Cache-Control",
+  // Allow multiple origins - we'll echo back a single allowed origin
+  const allowedOrigins = [
+    "https://duowork.tech",
+    "https://www.duowork.tech",
+    "http://localhost:4322",
+  ];
+
+  // Helper to build CORS headers for a given origin (or null if not allowed)
+  const buildCorsHeaders = (origin) => {
+    if (!origin || !allowedOrigins.includes(origin)) return null;
+    return {
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers":
+        "Content-Type, Cache-Control, Authorization",
+    };
   };
 
   if (!RESEND_API_KEY) {
@@ -16,30 +28,26 @@ exports.handler = async (event, context) => {
   }
 
   if (event.httpMethod === "OPTIONS") {
+    const origin =
+      event.headers && (event.headers.origin || event.headers.Origin);
+    const cors = buildCorsHeaders(origin);
     return {
       statusCode: 200,
-      headers: headers,
+      headers: cors || { "Access-Control-Allow-Origin": "" },
       body: "",
     };
   }
 
   // Only allow POST and OPTION requests
   if (event.httpMethod !== "POST" && event.httpMethod !== "OPTIONS") {
-    // Allow multiple origins
-    const allowedOrigins = [
-      "https://duowork.tech",
-      "https://www.duowork.tech",
-      "http://localhost:4322"
-    ];
+    const origin =
+      event.headers && (event.headers.origin || event.headers.Origin);
+    const cors = buildCorsHeaders(origin);
 
     return {
       statusCode: 405,
       body: JSON.stringify({ error: "Method Not Allowed" }),
-      headers: {
-      "Access-Control-Allow-Origin": allowedOrigins,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-      },
+      headers: cors || { "Access-Control-Allow-Origin": "" },
     };
   }
 
@@ -49,11 +57,12 @@ exports.handler = async (event, context) => {
 
     // Validate required fields
     if (!email || !subject || !message) {
+      const origin =
+        event.headers && (event.headers.origin || event.headers.Origin);
+      const cors = buildCorsHeaders(origin);
       return {
         statusCode: 400,
-        headers: {
-          "Access-Control-Allow-Origin": "https://duowork.tech",
-        },
+        headers: cors || { "Access-Control-Allow-Origin": "" },
         body: JSON.stringify({
           error: "Missing required fields: email, subject, message",
         }),
@@ -63,8 +72,12 @@ exports.handler = async (event, context) => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      const origin =
+        event.headers && (event.headers.origin || event.headers.Origin);
+      const cors = buildCorsHeaders(origin);
       return {
         statusCode: 400,
+        headers: cors || { "Access-Control-Allow-Origin": "" },
         body: JSON.stringify({ error: "Invalid email address" }),
       };
     }
@@ -74,6 +87,9 @@ exports.handler = async (event, context) => {
       headers: {
         Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
+        // Note: these CORS response headers are for browsers and should be
+        // set on the Netlify function responses. Downstream requests to the
+        // Resend API don't need them, but including them here is harmless.
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
@@ -112,11 +128,12 @@ exports.handler = async (event, context) => {
     }
 
     // Return success response
+    const origin =
+      event.headers && (event.headers.origin || event.headers.Origin);
+    const cors = buildCorsHeaders(origin);
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "https://duowork.tech",
-      },
+      headers: cors || { "Access-Control-Allow-Origin": "" },
       body: JSON.stringify({
         success: true,
         message: "Email sent successfully!",
@@ -124,11 +141,12 @@ exports.handler = async (event, context) => {
       }),
     };
   } catch (error) {
+    const origin =
+      event.headers && (event.headers.origin || event.headers.Origin);
+    const cors = buildCorsHeaders(origin);
     return {
       statusCode: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "https://duowork.tech",
-      },
+      headers: cors || { "Access-Control-Allow-Origin": "" },
       body: JSON.stringify({
         error: "Internal server error",
         message: error.message,
